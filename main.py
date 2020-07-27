@@ -10,6 +10,8 @@ import numpy as np
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 UPLOAD_FOLDER = 'static/uploads/'
+PREDICTION_THRESHOLD = .4
+COMPARISON_ITEM = 'Gojek Driver'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -39,7 +41,7 @@ def upload_file():
         filename = secure_filename(file.filename)
         file.save(os.path.join(UPLOAD_FOLDER, filename))
         prediction = process_file(os.path.join(app.config['UPLOAD_FOLDER'], filename), filename)
-        return render_template('index.html',filename=filename,prediction=prediction[0])
+        return render_template('index.html',filename=filename,prediction=prediction)
     else:
         return redirect(request.url)
 
@@ -81,10 +83,21 @@ def process_file(path, filename):
     data[0] = normalized_image_array
 
     # run the inference
-    prediction = model.predict(data)
-    #[[0.0000388  0.99996126]] <class 'numpy.ndarray'>
-    return prediction
+    prediction = model.predict(data) #[[0.0000388  0.99996126]] <class 'numpy.ndarray'>
+    prediction_text = truncate(prediction.item(0),5)
 
+    if prediction.item(0) > PREDICTION_THRESHOLD:
+        return "Yay! {}%% a {}!".format(prediction_text,COMPARISON_ITEM)
+    else:
+        return "{}% NOT a {}!".format(prediction_text,COMPARISON_ITEM)
+    
+def truncate(f, n):
+    '''Truncates/pads a float f to n decimal places without rounding'''
+    s = '{}'.format(f)
+    if 'e' in s or 'E' in s:
+        return '{0:.{1}f}'.format(f, n)
+    i, p, d = s.partition('.')
+    return '.'.join([i, (d+'0'*n)[:n]])
 
 
 app.run(host='0.0.0.0', port=8080)

@@ -2,6 +2,20 @@ import tensorflow.keras
 from PIL import Image, ImageOps
 import numpy as np
 
+THRESHOLD = .4
+
+
+
+def truncate(f, n):
+    '''Truncates/pads a float f to n decimal places without rounding'''
+    s = '{}'.format(f)
+    if 'e' in s or 'E' in s:
+        return '{0:.{1}f}'.format(f, n)
+    i, p, d = s.partition('.')
+    return '.'.join([i, (d+'0'*n)[:n]])
+
+
+
 # Disable scientific notation for clarity
 np.set_printoptions(suppress=True)
 
@@ -25,7 +39,7 @@ image = ImageOps.fit(image, size, Image.ANTIALIAS)
 image_array = np.asarray(image)
 
 # display the resized image
-image.show()
+#image.show()
 
 # Normalize the image
 normalized_image_array = (image_array.astype(np.float32) / 127.0) - 1
@@ -35,5 +49,17 @@ data[0] = normalized_image_array
 
 # run the inference
 prediction = model.predict(data)
-print(prediction)
-print(type(prediction))
+
+
+print(prediction) #[[0.0000388  0.99996126]]
+print(type(prediction)) #<class 'numpy.ndarray'
+
+comparison_item = prediction.item(0)
+rounded_comparison_item = truncate(comparison_item,6)
+
+return prediction.item(0),prediction.item(1)
+    
+    if prediction.item(0) > PREDICTION_THRESHOLD:
+        prediction_text = truncate(prediction.item(0),5)
+        return "Yay! {}%% a {}!".format(prediction_text,COMPARISON_ITEM)
+        else false
