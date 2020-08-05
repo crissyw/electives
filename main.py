@@ -15,7 +15,7 @@ COMPARISON_ITEM = 'Gojek Driver'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+#app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -84,10 +84,10 @@ def process_file(path, filename):
 
     # run the inference
     prediction = model.predict(data) #[[0.0000388  0.99996126]] <class 'numpy.ndarray'>
-    prediction_text = truncate(prediction.item(0),5)
+    prediction_text = truncate(prediction.item(0)**100,5)
 
     if prediction.item(0) > PREDICTION_THRESHOLD:
-        return "Yay! {}%% a {}!".format(prediction_text,COMPARISON_ITEM)
+        return "Yay! {}% a {}!".format(prediction_text,COMPARISON_ITEM)
     else:
         return "{}% NOT a {}!".format(prediction_text,COMPARISON_ITEM)
     
