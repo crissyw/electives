@@ -1,6 +1,6 @@
 [tool]
 [tool.poetry]
-name = "electives"
+name = "app_tensorflow"
 version = "0.0.1"
 description = ""
 authors = ["Crystal Widjaja <you@example.com>"]

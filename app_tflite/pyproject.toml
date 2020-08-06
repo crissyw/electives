@@ -1,0 +1,12 @@
+[tool]
+[tool.poetry]
+name = "app_tflite"
+version = "0.0.1"
+description = ""
+authors = ["Crystal Widjaja <you@example.com>"]
+[tool.poetry.dependencies]
+python = "^3.8.5"
+flask = "^1.1.2"
+Pillow = "^7.2.0"
+pybind11 = "^2.5.0"
+tflite_runtime = { file = "tflite_runtime-2.3.0-cp38-cp38-linux_x86_64.whl" }
