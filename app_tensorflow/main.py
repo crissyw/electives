@@ -116,7 +116,7 @@ def convert_upload():
             file.save(keras_file)
             keras_file.flush()
             tflite_file = io.BytesIO(convert_keras(keras_file.name))
-            return send_file(tflite_file, attachment_filename='model.tflite')
+            return send_file(tflite_file, attachment_filename='model.tflite', as_attachment=True)
 
     flash('Invalid file, must be a .h5 file')
     return redirect(request.url)
