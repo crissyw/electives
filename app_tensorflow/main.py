@@ -1,14 +1,18 @@
 import os
 
-from flask import Flask, flash, request, redirect, url_for, render_template
+from flask import Flask, flash, request, redirect, url_for, render_template, send_file
 from werkzeug.utils import secure_filename
+
+import tempfile
+import io
 
 import numpy as np
 import tensorflow as tf
 
 from PIL import Image, ImageOps
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+KERAS_EXTENSION = {'h5'}
 UPLOAD_FOLDER = 'static/uploads/'
 PREDICTION_THRESHOLD = .4
 COMPARISON_ITEM = 'Gojek Driver'
@@ -17,9 +21,9 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 #app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-def allowed_file(filename):
+def allowed_file(filename, exts=IMAGE_EXTENSIONS):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+           filename.rsplit('.', 1)[1].lower() in exts
 
 @app.route('/')
 def upload_form():
@@ -98,6 +102,30 @@ def process_file(filepath):
         return "Yay! {}% a {}!".format(prediction_text,COMPARISON_ITEM)
     else:
         return "{}% NOT a {}!".format(prediction_text,COMPARISON_ITEM)
+
+
+@app.route('/convert')
+def convert_form():
+    return render_template('convert.html')
+
+@app.route('/convert', methods=['POST'])
+def convert_upload():
+    file = request.files.get('file')
+    if file and allowed_file(file.filename, KERAS_EXTENSION):
+        with tempfile.NamedTemporaryFile() as keras_file:
+            file.save(keras_file)
+            keras_file.flush()
+            tflite_file = io.BytesIO(convert_keras(keras_file.name))
+            return send_file(tflite_file, attachment_filename='model.tflite')
+
+    flash('Invalid file, must be a .h5 file')
+    return redirect(request.url)
+
+def convert_keras(filepath):
+    model = tf.keras.models.load_model(filepath, compile=False)
+    converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    return converter.convert()
+
 
 def truncate(f, n):
     '''Truncates/pads a float f to n decimal places without rounding'''

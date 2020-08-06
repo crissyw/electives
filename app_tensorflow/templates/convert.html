@@ -13,7 +13,7 @@
     </style>
 	</head>
 	<body>
-        <h1>Is it a hotdog?</h1>
+        <h1>Convert your keras model to a tflite model</h1>
         <p>
             {% with messages = get_flashed_messages() %}
               {% if messages %}
@@ -25,21 +25,11 @@
               {% endif %}
             {% endwith %}
         </p>
-        {% if filename %}
-            <div>
-                <img src="{{ url_for('display_image', filename=filename) }}">
-            </div>
-        {% endif %}
-
-        {% if prediction %}
-        <div>
-            <h3>{{ prediction }}</h3>
-        </div>
-        {% endif %}
     <form method="POST" enctype=multipart/form-data>
       <input type="file" name="file">
       <input type="submit" value="Upload">
     </form>
     <hr>
+    <h2><a href="/">Predict your picture</a></h2>
 	</body>
 </html>
